@@ -1,0 +1,4 @@
+Natural and artificial languages are similar in that they have a structure known as grammar or syntax. Syntax can be expressed by a set of rules that describe what it means to be a legal sentence or program. For programming languages, syntax rules are often expressed in BNF (Backus-Naur Form), a system that was developed by computer scientists John Backus and Peter Naur in the late 1950s.
+----------
+The parsing method that we will use is called recursive descent parsing. It is not the only possible parsing method, or the most efficient, but it is the one most suited for writing compilers by hand (rather than with the help of so called "parser generator" programs).
+---------

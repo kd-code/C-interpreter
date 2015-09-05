@@ -28,6 +28,8 @@ struct Token
 	};
 	TOKEN_TYPE type;
 	string stringRepresentation;
+	int line;
+	int col;
 	string getTypeStr()
 	{
 		switch (type)
@@ -305,7 +307,6 @@ enum class SYMBOL_TYPE
 	STRLIT,
 	CHAR,
 	INT,
-	VOID,
 	LBRAC,
 	RBRAC,
 	LCURL,
@@ -316,13 +317,89 @@ enum class SYMBOL_TYPE
 	FOR,
 	RETURN,
 	SEMI,
-	UNARY_OP,
-	BIN_OP,
+	COLON,
+	COMMA,
+	OP,
 	EQ,
+	MINUS,
+	NOT,
+	END
 };
 SYMBOL_TYPE symbol;
+Tokenizer *t;
 void nextSymbol()
 {
+	Token tok = t->getNextToken();
+	switch (tok.type)
+	{
+		case Token::TOKEN_TYPE::CHAR_LITERAL:
+			symbol = SYMBOL_TYPE::CHARLIT;
+			break;
+		case Token::TOKEN_TYPE::DELIMITER:
+			if (tok.stringRepresentation == "(")
+				symbol = SYMBOL_TYPE::LPAR;
+			else if (tok.stringRepresentation == ")")
+				symbol = SYMBOL_TYPE::RPAR;
+			else if (tok.stringRepresentation == "[")
+				symbol = SYMBOL_TYPE::LBRAC;
+			else if (tok.stringRepresentation == "]")
+				symbol = SYMBOL_TYPE::RBRAC;
+			else if (tok.stringRepresentation == "{")
+				symbol = SYMBOL_TYPE::LCURL;
+			else if (tok.stringRepresentation == "}")
+				symbol = SYMBOL_TYPE::RCURL;
+			else if (tok.stringRepresentation == ";")
+				symbol = SYMBOL_TYPE::SEMI;
+			else if (tok.stringRepresentation == ":")
+				symbol = SYMBOL_TYPE::COLON;
+			else if (tok.stringRepresentation == ",")
+				symbol = SYMBOL_TYPE::COMMA;
+			break;
+		case Token::TOKEN_TYPE::FINISHED:
+			symbol = SYMBOL_TYPE::END;
+			break;
+		case Token::TOKEN_TYPE::IDENTIFIER:
+			symbol = SYMBOL_TYPE::ID;
+			break;
+		case Token::TOKEN_TYPE::KEYWORD:
+			if (tok.stringRepresentation == "extern")
+				symbol = SYMBOL_TYPE::EXTERN;
+			else if (tok.stringRepresentation == "void")
+				symbol = SYMBOL_TYPE::VOID;
+			else if (tok.stringRepresentation == "char")
+				symbol = SYMBOL_TYPE::CHAR;
+			else if (tok.stringRepresentation == "int")
+				symbol = SYMBOL_TYPE::INT;
+			else if (tok.stringRepresentation == "if")
+				symbol = SYMBOL_TYPE::IF;
+			else if (tok.stringRepresentation == "else")
+				symbol = SYMBOL_TYPE::ELSE;
+			else if (tok.stringRepresentation == "while")
+				symbol = SYMBOL_TYPE::WHILE;
+			else if (tok.stringRepresentation == "for")
+				symbol = SYMBOL_TYPE::FOR;
+			else if (tok.stringRepresentation == "return")
+				symbol = SYMBOL_TYPE::RETURN;
+			break;
+		case Token::TOKEN_TYPE::NUMBER_LITERAL:
+			symbol = SYMBOL_TYPE::INTLIT;
+			break;
+		case Token::TOKEN_TYPE::OPERATOR:
+			if (tok.stringRepresentation == "-")
+				symbol = SYMBOL_TYPE::MINUS;
+			else if (tok.stringRepresentation == "!")
+				symbol = SYMBOL_TYPE::NOT;
+			else if (tok.stringRepresentation == "=")
+				symbol = SYMBOL_TYPE::EQ;
+			else
+				symbol = SYMBOL_TYPE::OP;
+			break;
+		case Token::TOKEN_TYPE::STRING_LITERAL:
+			symbol = SYMBOL_TYPE::STRLIT;
+			break;
+
+
+	}
 	
 }
 void error(string message)
@@ -348,9 +425,103 @@ int expect(SYMBOL_TYPE s)
 /////////////////////////////
 //recursive descend parsing//
 /////////////////////////////
-void prog()
+void var_decl()
 {
 
+}
+void type()
+{
+
+}
+void paramTypes()
+{
+
+}
+int dcl()
+{
+
+}
+int func()
+{
+
+}
+
+void prog()
+{
+	if (accept(SYMBOL_TYPE::EXTERN))
+	{
+		if (accept(SYMBOL_TYPE::VOID))
+		{
+			do
+			{
+				expect(SYMBOL_TYPE::ID);
+				expect(SYMBOL_TYPE::LPAR);
+				paramTypes();
+				expect(SYMBOL_TYPE::RPAR);
+			} while (accept(SYMBOL_TYPE::COMMA));
+		}
+		else
+		{
+			type();
+			do
+			{
+				expect(SYMBOL_TYPE::ID);
+				expect(SYMBOL_TYPE::LPAR);
+				paramTypes();
+				expect(SYMBOL_TYPE::RPAR);
+			} while (accept(SYMBOL_TYPE::COMMA));
+		}
+		
+	}
+	else if (accept(SYMBOL_TYPE::VOID))
+	{
+		expect(SYMBOL_TYPE::ID);
+		expect(SYMBOL_TYPE::LPAR);
+		paramTypes();
+		expect(SYMBOL_TYPE::RPAR);
+		expect(SYMBOL_TYPE::LCURL);
+		do
+		{
+			type();
+			do
+			{
+				var_decl();
+			} while (accept(SYMBOL_TYPE::COMMA));
+			expect(SYMBOL_TYPE::SEMI);
+		} while (accept(SYMBOL_TYPE::INT) || accept(SYMBOL_TYPE::CHAR));
+	}
+	else
+	{
+		type();
+		expect(SYMBOL_TYPE::ID);
+		if (accept(SYMBOL_TYPE::LPAR))
+		{
+			paramTypes();
+			expect(SYMBOL_TYPE::RPAR);
+			expect(SYMBOL_TYPE::LCURL);
+			do
+			{
+				type();
+				do
+				{
+					var_decl();
+				} while (accept(SYMBOL_TYPE::COMMA));
+				expect(SYMBOL_TYPE::SEMI);
+			} while (accept(SYMBOL_TYPE::INT) || accept(SYMBOL_TYPE::CHAR));
+		}
+		else if (accept(SYMBOL_TYPE::LBRAC))
+		{
+			expect(SYMBOL_TYPE::INTLIT);
+			expect(SYMBOL_TYPE::RBRAC);
+		}
+		else
+		{
+
+		}
+		
+	}
+
+	
 }
 
 
@@ -361,8 +532,9 @@ void main(int argc, char *argv[])
 	std::ifstream ifstream("d:\\test.c");
 	std::string str((std::istreambuf_iterator<char>(ifstream)), std::istreambuf_iterator<char>());
 	
-	Tokenizer t = Tokenizer(str);
-	Token tok;
+	t = new  Tokenizer(str);
+
+	/*Token tok;
 	int n = 0;
 	do
 	{
@@ -374,11 +546,12 @@ void main(int argc, char *argv[])
 		//	cout << "---";
 		}
 
-	} while (tok.type != Token::TOKEN_TYPE::FINISHED && tok.type != Token::TOKEN_TYPE::ERROR);
+	} while (tok.type != Token::TOKEN_TYPE::FINISHED && tok.type != Token::TOKEN_TYPE::ERROR);*/
 	
 	//acutal code
 
-	
+	nextSymbol();
+	prog();
 	
 
 	return;

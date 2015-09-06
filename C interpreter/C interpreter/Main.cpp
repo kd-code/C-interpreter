@@ -425,102 +425,232 @@ int expect(SYMBOL_TYPE s)
 /////////////////////////////
 //recursive descend parsing//
 /////////////////////////////
+void expr()
+{
+	if (accept(SYMBOL_TYPE::MINUS) || accept(SYMBOL_TYPE::NOT))
+	{
+		expr();
+	}
+	else if (accept(SYMBOL_TYPE::ID))
+	{
+		if (accept(SYMBOL_TYPE::LBRAC))
+		{
+			expr();
+			expect(SYMBOL_TYPE::RBRAC);
+		}
+		if (accept(SYMBOL_TYPE::LPAR))
+		{
+			if (accept(SYMBOL_TYPE::RPAR) == 0)
+			{
+			
+				do
+				{
+					expr();
+				} while (accept(SYMBOL_TYPE::COMMA));
+				expect(SYMBOL_TYPE::RPAR);
+			}
+			
+		}
+	}
+	else if (accept(SYMBOL_TYPE::LPAR))
+	{
+		expr();
+		expect(SYMBOL_TYPE::RPAR);
+	}
+	else if (accept(SYMBOL_TYPE::INTLIT) || accept(SYMBOL_TYPE::CHARLIT) || accept(SYMBOL_TYPE::STRLIT))
+	{
+
+	}
+	else
+	{
+		expr();
+		expect(SYMBOL_TYPE::OP);
+		expr();
+	}
+}
+void assg()
+{
+	expect(SYMBOL_TYPE::ID);
+	if (accept(SYMBOL_TYPE::LBRAC))
+	{
+		expr();
+		expect(SYMBOL_TYPE::RBRAC);
+	}
+	expect(SYMBOL_TYPE::EQ);
+	expr();
+}
+void stmt()
+{
+	if (accept(SYMBOL_TYPE::IF))
+	{
+		expect(SYMBOL_TYPE::LPAR);
+		expr();
+		expect(SYMBOL_TYPE::RPAR);
+		stmt();
+		if (accept(SYMBOL_TYPE::ELSE))
+		{
+			stmt;
+		}
+	}
+	else if (accept(SYMBOL_TYPE::WHILE))
+	{
+		expect(SYMBOL_TYPE::LPAR);
+		expr();
+		expect(SYMBOL_TYPE::RPAR);
+		stmt();
+	}
+	else if (accept(SYMBOL_TYPE::FOR))
+	{
+		expect(SYMBOL_TYPE::LPAR);
+		if (accept(SYMBOL_TYPE::SEMI))
+		{
+			if (accept(SYMBOL_TYPE::SEMI))
+			{
+				if (accept(SYMBOL_TYPE::RPAR))
+				{
+					stmt();
+				}
+				else
+				{
+					assg();
+					expect(SYMBOL_TYPE::RPAR);
+					stmt();
+				}
+			}
+			else
+			{
+				expr();
+				expect(SYMBOL_TYPE::SEMI);
+				if (accept(SYMBOL_TYPE::RPAR))
+				{
+					stmt();
+				}
+				else
+				{
+					assg();
+					expect(SYMBOL_TYPE::RPAR);
+					stmt();
+				}
+			}
+
+		}
+		else
+		{
+			assg();
+			expect(SYMBOL_TYPE::SEMI);
+			if (accept(SYMBOL_TYPE::SEMI))
+			{
+				if (accept(SYMBOL_TYPE::RPAR))
+				{
+					stmt();
+				}
+				else
+				{
+					assg();
+					expect(SYMBOL_TYPE::RPAR);
+					stmt();
+				}
+			}
+			else
+			{
+				expr();
+				expect(SYMBOL_TYPE::SEMI);
+				if (accept(SYMBOL_TYPE::RPAR))
+				{
+					stmt();
+				}
+				else
+				{
+					assg();
+					expect(SYMBOL_TYPE::RPAR);
+					stmt();
+				}
+			}
+		}
+		
+	}
+	else if (accept(SYMBOL_TYPE::RETURN))
+	{
+		if (accept(SYMBOL_TYPE::SEMI) == 0)
+		{
+			expr();
+			expect(SYMBOL_TYPE::SEMI);
+		}
+	}
+	else if (accept(SYMBOL_TYPE::ID))
+	{
+		expect(SYMBOL_TYPE::LPAR);
+		if (accept(SYMBOL_TYPE::RPAR) == 0)
+		{
+
+			do
+			{
+				expr();
+			} while (accept(SYMBOL_TYPE::COMMA));
+			expect(SYMBOL_TYPE::RPAR);
+		}
+		expect(SYMBOL_TYPE::SEMI);
+	}
+	else if (accept(SYMBOL_TYPE::LCURL))
+	{
+		stmt();
+		expect(SYMBOL_TYPE::LCURL);
+	}
+	else if (accept(SYMBOL_TYPE::SEMI))
+	{
+
+	}
+	else
+	{
+		assg();
+		expect(SYMBOL_TYPE::SEMI);
+	}
+}
 void var_decl()
 {
 
 }
 void type()
 {
+	if (accept(SYMBOL_TYPE::VOID) || accept(SYMBOL_TYPE::CHAR) || accept(SYMBOL_TYPE::INT))
+	{
 
+	}
+	else
+	{
+		error("Type expected");
+	}
 }
 void paramTypes()
 {
 
 }
-int dcl()
+void dcl()
 {
+	type();
+	expect(SYMBOL_TYPE::ID);
+	if (accept(SYMBOL_TYPE::LPAR))//function
+	{
+
+	}
+	else if(accept(SYMBOL_TYPE::LPAR))//function
+	{
+
+	}
 
 }
-int func()
+void func()
 {
 
 }
 
 void prog()
 {
-	if (accept(SYMBOL_TYPE::EXTERN))
+	do
 	{
-		if (accept(SYMBOL_TYPE::VOID))
-		{
-			do
-			{
-				expect(SYMBOL_TYPE::ID);
-				expect(SYMBOL_TYPE::LPAR);
-				paramTypes();
-				expect(SYMBOL_TYPE::RPAR);
-			} while (accept(SYMBOL_TYPE::COMMA));
-		}
-		else
-		{
-			type();
-			do
-			{
-				expect(SYMBOL_TYPE::ID);
-				expect(SYMBOL_TYPE::LPAR);
-				paramTypes();
-				expect(SYMBOL_TYPE::RPAR);
-			} while (accept(SYMBOL_TYPE::COMMA));
-		}
-		
-	}
-	else if (accept(SYMBOL_TYPE::VOID))
-	{
-		expect(SYMBOL_TYPE::ID);
-		expect(SYMBOL_TYPE::LPAR);
-		paramTypes();
-		expect(SYMBOL_TYPE::RPAR);
-		expect(SYMBOL_TYPE::LCURL);
-		do
-		{
-			type();
-			do
-			{
-				var_decl();
-			} while (accept(SYMBOL_TYPE::COMMA));
-			expect(SYMBOL_TYPE::SEMI);
-		} while (accept(SYMBOL_TYPE::INT) || accept(SYMBOL_TYPE::CHAR));
-	}
-	else
-	{
-		type();
-		expect(SYMBOL_TYPE::ID);
-		if (accept(SYMBOL_TYPE::LPAR))
-		{
-			paramTypes();
-			expect(SYMBOL_TYPE::RPAR);
-			expect(SYMBOL_TYPE::LCURL);
-			do
-			{
-				type();
-				do
-				{
-					var_decl();
-				} while (accept(SYMBOL_TYPE::COMMA));
-				expect(SYMBOL_TYPE::SEMI);
-			} while (accept(SYMBOL_TYPE::INT) || accept(SYMBOL_TYPE::CHAR));
-		}
-		else if (accept(SYMBOL_TYPE::LBRAC))
-		{
-			expect(SYMBOL_TYPE::INTLIT);
-			expect(SYMBOL_TYPE::RBRAC);
-		}
-		else
-		{
-
-		}
-		
-	}
-
+		dcl();
+	} while (symbol != SYMBOL_TYPE::END);
+	
 	
 }
 
@@ -551,7 +681,7 @@ void main(int argc, char *argv[])
 	//acutal code
 
 	nextSymbol();
-	prog();
+	stmt();
 	
 
 	return;

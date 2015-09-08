@@ -1,0 +1,23 @@
+﻿Build started 9/7/2015 6:01:00 PM.
+     1>Project "C:\Users\Mahdi\Desktop\clex\clex\clex.vcxproj" on node 2 (Build target(s)).
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _LIB /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS- /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt Main.cpp Tokenizer.cpp
+     1>cl : Command line warning D9025: overriding '/sdl' with '/GS-'
+         Tokenizer.cpp
+     1>c:\users\mahdi\desktop\clex\clex\common.h(13): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 c:\program files (x86)\microsoft visual studio 12.0\vc\include\string.h(112) : see declaration of 'strcpy'
+     1>c:\users\mahdi\desktop\clex\clex\common.h(15): warning C4996: 'vsnprintf': This function or variable may be unsafe. Consider using vsnprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 c:\program files (x86)\microsoft visual studio 12.0\vc\include\stdio.h(337) : see declaration of 'vsnprintf'
+         Main.cpp
+     1>c:\users\mahdi\desktop\clex\clex\main.cpp(3): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+         Generating Code...
+     1>c:\users\mahdi\desktop\clex\clex\token.h(51): warning C4715: 'Token::getTypeStr' : not all control paths return a value
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Mahdi\Desktop\clex\Debug\clex.exe" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\Mahdi\Desktop\clex\Debug\clex.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Mahdi\Desktop\clex\Debug\clex.lib" /MACHINE:X86 Debug\Main.obj
+         Debug\Tokenizer.obj
+         clex.vcxproj -> C:\Users\Mahdi\Desktop\clex\Debug\clex.exe
+     1>Done Building Project "C:\Users\Mahdi\Desktop\clex\clex\clex.vcxproj" (Build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:01.10
